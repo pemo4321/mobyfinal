@@ -69,28 +69,23 @@ imageInput.addEventListener('change', (event) => {
 
 })
 
-document.querySelector(".go").addEventListener('click', () => {
+document.querySelector(".go").addEventListener('click', (e) => {
+    e.preventDefault(); // Blokuje domyślne zachowanie linku na telefonie
 
     var empty = [];
-
     var params = new URLSearchParams();
 
-    params.set("sex", sex)
-    if (!upload.hasAttribute("selected")){
-        empty.push(upload);
-        upload.classList.add("error_shown")
-    }else{
-        localStorage.setItem("userImage", upload.getAttribute("selected"))
-    }
+    params.set("sex", sex);
 
     var birthday = "";
     var dateEmpty = false;
     document.querySelectorAll(".date_input").forEach((element) => {
-        birthday = birthday + "." + element.value
-        if (isEmpty(element.value)){
+        var val = element.value.trim(); // Usunięcie przypadkowych spacji z telefonu
+        birthday = birthday + "." + val;
+        if (val === ""){
             dateEmpty = true;
         }
-    })
+    });
 
     birthday = birthday.substring(1);
 
@@ -98,30 +93,27 @@ document.querySelector(".go").addEventListener('click', () => {
         var dateElement = document.querySelector(".date");
         dateElement.classList.add("error_shown");
         empty.push(dateElement);
-    }else{
-        params.set("birthday", birthday)
+    } else {
+        params.set("birthday", birthday);
     }
 
     document.querySelectorAll(".input_holder").forEach((element) => {
-
         var input = element.querySelector(".input");
+        var val = input.value.trim(); // Usunięcie przypadkowych spacji
 
-        if (isEmpty(input.value)){
+        if (val === "" || !input.id){
             empty.push(element);
             element.classList.add("error_shown");
-        }else{
-            params.set(input.id, input.value)
+        } else {
+            params.set(input.id, val);
         }
-
-    })
+    });
 
     if (empty.length != 0){
-        empty[0].scrollIntoView();
-    }else{
-
-        forwardToId(params);
+        empty[0].scrollIntoView({ behavior: 'smooth' }); // Płynne przewijanie na telefonie
+    } else {
+        window.location.href = "id.html?" + params.toString();
     }
-
 });
 
 function isEmpty(value){
