@@ -30,20 +30,14 @@ imageInput.type = "file";
 imageInput.accept = ".jpeg,.png,.gif";
 
 document.querySelectorAll(".input_holder").forEach((element) => {
+
     var input = element.querySelector(".input");
-    if (!input) return; // Zabezpieczenie przed brakiem elementu
+    input.addEventListener('click', () => {
+        element.classList.remove("error_shown");
+    })
 
-    var val = input.value.trim();
-
-    if (val === "") {
-        empty.push(element);
-        element.classList.add("error_shown");
-    } else {
-        if (input.id) {
-            params.set(input.id, val); // Zapisuje tylko, jeśli ID istnieje
-        }
-    }
 });
+
 upload.addEventListener('click', () => {
     imageInput.click();
     upload.classList.remove("error_shown")
@@ -75,23 +69,28 @@ imageInput.addEventListener('change', (event) => {
 
 })
 
-document.querySelector(".go").addEventListener('click', (e) => {
-    e.preventDefault(); // Blokuje domyślne zachowanie linku na telefonie
+document.querySelector(".go").addEventListener('click', () => {
 
     var empty = [];
+
     var params = new URLSearchParams();
 
-    params.set("sex", sex);
+    params.set("sex", sex)
+    if (!upload.hasAttribute("selected")){
+        empty.push(upload);
+        upload.classList.add("error_shown")
+    }else{
+        localStorage.setItem("userImage", upload.getAttribute("selected"))
+    }
 
     var birthday = "";
     var dateEmpty = false;
     document.querySelectorAll(".date_input").forEach((element) => {
-        var val = element.value.trim(); // Usunięcie przypadkowych spacji z telefonu
-        birthday = birthday + "." + val;
-        if (val === ""){
+        birthday = birthday + "." + element.value
+        if (isEmpty(element.value)){
             dateEmpty = true;
         }
-    });
+    })
 
     birthday = birthday.substring(1);
 
@@ -99,27 +98,30 @@ document.querySelector(".go").addEventListener('click', (e) => {
         var dateElement = document.querySelector(".date");
         dateElement.classList.add("error_shown");
         empty.push(dateElement);
-    } else {
-        params.set("birthday", birthday);
+    }else{
+        params.set("birthday", birthday)
     }
 
     document.querySelectorAll(".input_holder").forEach((element) => {
-        var input = element.querySelector(".input");
-        var val = input.value.trim(); // Usunięcie przypadkowych spacji
 
-        if (val === "" || !input.id){
+        var input = element.querySelector(".input");
+
+        if (isEmpty(input.value)){
             empty.push(element);
             element.classList.add("error_shown");
-        } else {
-            params.set(input.id, val);
+        }else{
+            params.set(input.id, input.value)
         }
-    });
+
+    })
 
     if (empty.length != 0){
-        empty[0].scrollIntoView({ behavior: 'smooth' }); // Płynne przewijanie na telefonie
-    } else {
-        window.location.href = "id.html?" + params.toString();
+        empty[0].scrollIntoView();
+    }else{
+
+        forwardToId(params);
     }
+
 });
 
 function isEmpty(value){
