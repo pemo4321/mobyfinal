@@ -30,14 +30,20 @@ imageInput.type = "file";
 imageInput.accept = ".jpeg,.png,.gif";
 
 document.querySelectorAll(".input_holder").forEach((element) => {
-
     var input = element.querySelector(".input");
-    input.addEventListener('click', () => {
-        element.classList.remove("error_shown");
-    })
+    if (!input) return; // Zabezpieczenie przed brakiem elementu
 
+    var val = input.value.trim();
+
+    if (val === "") {
+        empty.push(element);
+        element.classList.add("error_shown");
+    } else {
+        if (input.id) {
+            params.set(input.id, val); // Zapisuje tylko, jeśli ID istnieje
+        }
+    }
 });
-
 upload.addEventListener('click', () => {
     imageInput.click();
     upload.classList.remove("error_shown")
